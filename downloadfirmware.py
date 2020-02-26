@@ -1,4 +1,3 @@
-# import streams
 import streams
 import json
 from mqtt import mqtt
@@ -11,9 +10,6 @@ import requests
 from espressif.esp32net import esp32wifi as wifi_driver
 
 streams.serial()
-# init the wifi driver!
-# The driver automatically registers itself to the wifi interface
-# with the correct configuration for the selected board
 wifi_driver.auto_init()
 
 wifi_name = "Zerynth"
@@ -26,7 +22,9 @@ client_id = "dev-4pcidr47kutt"
 password  = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkZXYtNHBjaWRyNDdrdXR0IiwidXNlciI6ImRldi00cGNpZHI0N2t1dHQiLCJleHAiOjE5MTYyMzkwMjIsImtleSI6MX0.wcMkmJGvHLz5juaL9scUpv9PKsMWdXMh_5oCbkGckCA"
 broker    = "rmq.adm.zerinth.com"
 
-topic = "j/dn/" + device_id
+subscribe_topic = '/'.join(['j','dn',device_id])
+data_topic = '.'.join(['j','data', device_id,'esp32'])
+
 # use the wifi interface to link to the Access Point
 # change network name, security and password as needed
 print("Establishing Link...")
@@ -36,7 +34,6 @@ except Exception as e:
     print("ooops, something wrong while linking :(", e)
     while True:
         sleep(1000)
-
 
 # define MQTT callbacks
 def is_fota(data):
@@ -53,7 +50,7 @@ def process_fota(client,data):
         value = (body["value"])
         fw_download_link = value["url"]
         ## connect to api.adm.zerinth.com to download the firmware
-        print("Trying to connect...")
+        print("Trying to download firmware...")
         response = requests.get(fw_download_link, headers=auth)
         # let's check the http response status: if different than 200, something went wrong
         print("Http Status:",response.status)
@@ -80,10 +77,16 @@ try:
             print("connecting...")
     print("connected.")
     # subscribe to channels
-    client.subscribe([[topic, 1]])
-    print("Subscribed to topic: ", topic)
+    client.subscribe([[subscribe_topic, 1]])
+    print("Subscribed to topic: ", subscribe_topic)
     client.on(mqtt.PUBLISH, process_fota, is_fota)
     client.loop()
 
+    while True:
+        temp = random(23,25)
+        payload = {"temp": temp}
+        client.publish(data_topic, json.dumps(payload), qos=1)
+        print("Data published to topic: " + data_topic)
+        sleep(5000)
 except Exception as e:
     print("an error occurred ",e)
