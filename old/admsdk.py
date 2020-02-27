@@ -52,7 +52,6 @@ port = 1883
 # publish_topic = 'j.data.'+client_id+'.prova'
 
 publish_topic = '.'.join(['j','data',client_id,'prova'])
-
 sub_topic = '/'.join(['j','dn',client_id])
 rep_topic = '/'.join(['j','up',client_id])
 alert_topic = '/'.join(['j', 'alert', client_id])
