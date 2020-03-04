@@ -26,8 +26,8 @@ my_rpc = {
 
 try:
     client = adm.Thing(mqtt_id, rpc=my_rpc)
-    
-    # username is always == mqtt_id?
+
+    # client username must be always equal to client id - username is set by this function
     client.set_password(password)
     
     client.connect()

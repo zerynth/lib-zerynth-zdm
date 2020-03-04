@@ -68,7 +68,7 @@ class Thing():
             raise IOError
         
     def handle_dn_msg(self, client, data):
-        
+
         try:
             print("handle_dn_msg")
             for k in data:
