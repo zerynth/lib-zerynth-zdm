@@ -132,7 +132,7 @@ class Thing():
         
         
     
-    def handle_delta_request(self, delta_key, arg, change_id):
+    def handle_delta_request(self, delta_key, arg):
         print("zlib_adm.Thing.handle_delta_request")
         print("delta_key", delta_key)
         print("arg", arg)
@@ -202,12 +202,12 @@ class Thing():
                 
                 for expected_key in arg['expected']:
                     value = arg['expected'][expected_key]
-                    rpc_change_id = change_id
+
                     
                     if expected_key[0] == '@':
-                        self.handle_rpc_request(expected_key[1:], value, rpc_change_id)
+                        self.handle_rpc_request(expected_key[1:], value)
         #                 # if expected_key not in arg['current']:
-        #                 #     self.handle_rpc_request(expected_key[1:], value, rpc_change_id)
+        #                 #     self.handle_rpc_request(expected_key[1:], value)
         #                 # else:
         #                 #     print("zlib_adm.Thing.handle_delta_request ignoring rpc, already answered")
                     else:
@@ -230,7 +230,6 @@ class Thing():
                 
                 
                 print("close @fota")
-                # TODO change_id from expected status??
                 answer = {
                     'key' : '@fota',
                     'value' : {
@@ -282,7 +281,7 @@ class Thing():
 
 
 
-    def handle_rpc_request(self, rpc, arg, change_id):
+    def handle_rpc_request(self, rpc, arg):
         
         if rpc == 'fota':
             print("zlib_adm.Thing.handle_rpc_request received fota request")
@@ -362,8 +361,7 @@ class Thing():
             
             answer = {
                 'key' : '@'+rpc,
-                'value' : res,
-                'change_id' : change_id
+                'value' : res
             }
             
             print("zlib_adm.Thing.handle_rpc_request", answer)
@@ -401,7 +399,7 @@ class Thing():
                 if payload['key'][0] == '@':
                     print("received RPC @")
                     # self.handle_rpc(payload)
-                    self.handle_rpc_request(payload['key'][1:], payload['value'], payload['change_id'])
+                    self.handle_rpc_request(payload['key'][1:], payload['value'])
                     
                 
                 elif payload['key'][0] == '#':
@@ -409,7 +407,7 @@ class Thing():
                     
                     # self.handle_delta(payload)
                     
-                    self.handle_delta_request(payload['key'][1:], payload['value'], 'change id non esiste più')
+                    self.handle_delta_request(payload['key'][1:], payload['value'])
                     
                 else:
                     print("received custom key")
