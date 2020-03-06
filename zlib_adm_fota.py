@@ -108,6 +108,24 @@ def update(data):
     except Exception as e:
         print("zlib_adm_fota.update get failed", e)
         return False
+
+        # if msg["t"]=="b":
+        #                     chk = fota.checksum_slot(self.next_bcaddr,self.bcsize)
+        #                     fota.close_slot(self.next_bcaddr)
+        #                 else:
+        #                     chk = fota.checksum_slot(self.next_vmaddr,self.vmsize)
+        #                     fota.close_slot(self.next_vmaddr)
+        #                 if not chk:
+        #                     self.log("Skipping CRC")
+
+        #                 for i,b in enumerate(chk):
+        #                     k = int(msg["crc"][i*2:i*2+2],16)
+        #                     if k!=b:
+        #                         self.log("Bad crc!")
+        #                         self._ota_fail("Bad CRC")
+        #                         break
+
+
     # TODO insert size check
     # TODO insert checksum check
     # chk = fota.checksum_slot(next_bcaddr,bcsize)
