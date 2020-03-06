@@ -1,17 +1,12 @@
 from mqtt import mqtt
 import json
 import mcu
+import vm
 
 import zlib_adm_fota as zfota
 
 ENDPOINT = "rmq.adm.zerinth.com"
 PORT = 1883
-
-
-SEND_UP_REPLY = True
-
-# mqtt_id = 'dev-4pnefulyx2bn'
-# pwd = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkZXYtNHBuZWZ1bHl4MmJuIiwidXNlciI6ImRldi00cG5lZnVseXgyYm4iLCJleHAiOjE5MTYyMzkwMjIsImtleSI6MX0.8Pi1y0s22ij1No-7oPysKGtpW0_ec7MMuZ3O5HeKqWw'
 
 
 class ZADMMQTTClient(mqtt.Client):
@@ -53,7 +48,6 @@ class Thing():
         self.dn_topic = '/'.join(['j','dn',mqtt_id])
         
         self.rpc = {
-            'manifest':rpc_list,
             'reset':rpc_reset
         }
         
@@ -92,16 +86,35 @@ class Thing():
             self.mqtt.on(mqtt.PUBLISH, self.handle_dn_msg)
             
             self.update_status("fota_record", zfota.get_record())
-            self.request_status()
             self.send_manifest()
+            self.send_vm_info()
+            self.request_status()
             
         except Exception as e:
             print("zlib_adm.Thing._config", e)
             raise IOError
     
+    
+    def send_vm_info(self):
+        asd = vm.info()
+        vm_uid = asd[0]
+        vm_target = asd[1]
+        vm_ver = asd[2]
+      
+        payload = {
+            'key' : '__vm_info',
+            'value': {
+                'vm_uid':vm_uid,
+                'vm_target':vm_target,
+                'vm_version':vm_ver
+            }
+        }
+        
+        self.mqtt.publish(self.up_topic, json.dumps(payload))
+    
     def send_manifest(self):
         payload = {
-            'key' : 'manifest',
+            'key' : '__manifest',
             'value': [k for k in self.rpc]
         }
         self.mqtt.publish(self.up_topic, json.dumps(payload))
@@ -353,13 +366,8 @@ class Thing():
                 'change_id' : change_id
             }
             
-            if SEND_UP_REPLY:
-                print("zlib_adm.Thing.handle_rpc_request sending answer")
-                print("zlib_adm.Thing.handle_rpc_request", answer)
-                self.mqtt.publish(self.up_topic, json.dumps(answer))
-                print("zlib_adm.Thing.handle_rpc_request done")
-            else:
-                print("zlib_adm.Thing.handle_rpc_request skip answer SEND_UP_REPLY=False")
+            print("zlib_adm.Thing.handle_rpc_request", answer)
+            self.mqtt.publish(self.up_topic, json.dumps(answer))
             
             if rpc=='reset':
                 mcu.reset()

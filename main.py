@@ -9,7 +9,7 @@ import sfw
 from espressif.esp32net import esp32wifi as wifi_driver
 import streams
 import json
-
+import vm
 
 import testsuite as t
 
@@ -168,6 +168,15 @@ try:
     
     client.connect()
     
+    
+    asd = vm.info()
+    
+    vm_uid = asd[0]
+    vm_target = asd[1]
+    vm_ver = asd[2]
+    print(vm_uid)
+    print(vm_target)
+    print(vm_ver)
     t.start()
     
     # i = 0
