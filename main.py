@@ -16,7 +16,7 @@ import testsuite as t
 
 
 streams.serial()
-sfw.watchdog(0,120000)
+#sfw.watchdog(0,120000)
 
 # mqtt_id = 'dev-4ncgqw30yiv7'
 # password = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJkZXYtNG5jZ3F3MzB5aXY3IiwiZXhwIjoxNjAwNTIzNzI2LCJrZXkiOjF9.CQ9nhLHGpQi5tMLRRlCHUy3XPIns-Qr1xKtdJ5xBQP8'
@@ -25,8 +25,8 @@ sfw.watchdog(0,120000)
 # mqtt_id = 'dev-4pnefulyx2bn'
 # pwd = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkZXYtNHBuZWZ1bHl4MmJuIiwidXNlciI6ImRldi00cG5lZnVseXgyYm4iLCJleHAiOjE5MTYyMzkwMjIsImtleSI6MX0.8Pi1y0s22ij1No-7oPysKGtpW0_ec7MMuZ3O5HeKqWw'
 
-mqtt_id = 'dev-4py3x1xk2rkf'
-pwd = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkZXYtNHB5M3gxeGsycmtmIiwidXNlciI6ImRldi00cHkzeDF4azJya2YiLCJrZXkiOjEsImV4cCI6MjUxNjIzOTAyMn0.a3H6XTmRRMAb0f1P6p4R9xyCZx4XiELbE18qJce07z0'
+mqtt_id = 'dev-4pnefulyx2bn'
+pwd = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkZXYtNHBuZWZ1bHl4MmJuIiwidXNlciI6ImRldi00cG5lZnVseXgyYm4iLCJleHAiOjE5MTYyMzkwMjIsImtleSI6MX0.8Pi1y0s22ij1No-7oPysKGtpW0_ec7MMuZ3O5HeKqWw'
 
 def rpc_custom_1(obj, arg):
     print("rpc_custom_1")
@@ -34,9 +34,9 @@ def rpc_custom_1(obj, arg):
     return {
         'value 1': random(0,100),
         'value 2': random(100,200)
-        }
+    }
 
-client = None 
+client = None
 
 def rpc_custom_2(obj, arg):
     print("rpc_custom_2")
@@ -46,7 +46,10 @@ def rpc_custom_2(obj, arg):
 
 my_rpc = {
     'rpc1' : rpc_custom_1,
-    'rpc2' : rpc_custom_2
+    'rpc2' : rpc_custom_2,
+    'rpc3' : rpc_custom_2,
+    'rpc4' : rpc_custom_2,
+    'rpc5' : rpc_custom_2
 }
 
 
@@ -76,7 +79,7 @@ def pub_random():
         payload['topic'] = t
         payload['value'] = random(0,100)
         client.publish(json.dumps(payload), t)
-        
+
         print(t,':', payload)
     print("done")
     print(" ")
@@ -104,9 +107,9 @@ def upd_status():
 
 def test():
     st = {'current':None, 'expected':None}
-    
+
     p = 'arg'
-    
+
     try:
         print("test")
         if 'expected' in st:
@@ -115,8 +118,8 @@ def test():
         print("done if")
     except Exception as e:
         print("test", e)
-    
-    
+
+
 def req_status():
     print("------ req. status ------")
     client.request_status()
@@ -134,7 +137,7 @@ def t2():
     print("t2")
     print("calling t1")
     a = t1()
-    
+
     print(a)
     print("done")
 
@@ -149,28 +152,29 @@ t.add_command(t2, 't2')
 t.add_command(clear_st, 'clear')
 
 try:
-    
+    print("IM NEW FIRMWARE")
     wifi_driver.auto_init()
     for _ in range(5):
         try:
+
             print("connect wifi")
             wifi.link("Zerynth",wifi.WIFI_WPA2,"zerynthwifi")
             print("done")
             break
         except Exception as e:
             print("wifi connect err", e)
-     
+
     client = adm.Thing(mqtt_id, rpc=my_rpc)
-    
+
     # username is always == mqtt_id?
     client.set_password(pwd)
-    
-    
+
+
     client.connect()
-    
-    
+
+
     asd = vm.info()
-    
+
     vm_uid = asd[0]
     vm_target = asd[1]
     vm_ver = asd[2]
@@ -178,25 +182,25 @@ try:
     print(vm_target)
     print(vm_ver)
     t.start()
-    
+
     # i = 0
     # while True:
     #     sfw.kick()
     #     print("*************************")
-        
+
     #     pub_random()
-        
+
     #     pub_ufficio()
-        
+
     #     upd_status()
-        
+
     #     if i > 10:
     #         req_status()
     #         i=0
-        
+
     #     i+=1
     #     sleep(2000)
-        
+
 
 except Exception as e:
     print("main", e)
