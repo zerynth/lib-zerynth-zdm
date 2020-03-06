@@ -84,8 +84,7 @@ class Thing():
         
         try:
             self.mqtt.on(mqtt.PUBLISH, self.handle_dn_msg)
-            
-            self.update_status("fota_record", zfota.get_record())
+
             self.send_manifest()
             self.send_vm_info()
             self.request_status()
