@@ -1,0 +1,87 @@
+
+
+@fota in #status
+
+raw
+{
+    "version":1583750995199,
+    "key":"#status",
+    "value":{
+        "current":{
+            "__manifest":{
+                "t":1583481552377,
+                "v":null
+            },
+            "__vm_info":{
+                "t":1583481552496,
+                "v":null
+            },
+            "fota_record":{
+                "t":1583481552329,
+                "v":{"bc_slot":0,"vm_slot":0,"vm_uid":"rwA-VBNIRSKWVJFC3cf8VA"}
+            }
+        },
+        "expected":{
+            "@fota":{
+                "t":1583750861543,
+                "v":{"fw_version":"3.1","on_schedule":""}
+            }
+        }
+    }
+}
+
+@fota in @rpc
+raw 
+{
+    "version":1583751201482,
+    "key":"@fota",
+    "value":{
+        "fw_version":"3.2",
+        "on_schedule":""
+    }
+}
+
+
+
+
+
+
+
+
+# fota_info
+ {
+    fw_url:https://api.adm.zerinth.com/data/workspace/wks-4py3re4pbd3h/firmware/3.2/download?index=, 
+    fw_info:[
+        {fw_crc:1c3c6b38aa210acc7bc2c5a84cdb9527, fw_size:89632},
+        {fw_crc:91c14bf46b79ba68769f3157ad9d6efd, fw_size:89632}
+    ], 
+    fw_version:3.2, 
+    fw_metadata:{
+        vm_feature:127fa64712e9199d10858c3dcc49b2e6ef4d1061, 
+        vm_version:r19.12.12
+    }
+ }
+
+ 
+{
+    "version":1583761116976,
+    "key":"#fota_info",
+    "value":{
+        "fw_url":"https://api.adm.zerinth.com/data/workspace/wks-4py3re4pbd3h/firmware/3.2/download?index=",
+        "fw_info":[
+            {
+                "fw_crc":"1c3c6b38aa210acc7bc2c5a84cdb9527",
+                "fw_size":89632
+            },
+            {
+                "fw_crc":"91c14bf46b79ba68769f3157ad9d6efd",
+                "fw_size":89632
+            }
+        ],
+        "fw_version":"3.2",
+        "fw_metadata":{
+            "vm_feature":"127fa64712e9199d10858c3dcc49b2e6ef4d1061",
+            "vm_version":"r19.12.12"
+        }
+    }
+}

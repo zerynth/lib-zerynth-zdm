@@ -146,3 +146,35 @@ Input Length = 67416
 Output Length = 92754
 CertUtil: -encode command completed successfully.
 
+
+
+
+
+
+target = esp32_devkitc
+chip_id = c317fb6a0e46
+vm = rwA-VBNIRSKWVJFC3cf8VA_r19.12.12_127fa64712e9199d10858c3dcc49b2e6ef4d1061_esp32-rtos
+
+
+./ztc compile -o fw . esp32_devkitc
+
+./ztc link --bc 0 --file fw0.bin rwA-VBNIRSKWVJFC3cf8VA fw.vbo
+./ztc link --bc 1 --file fw1.bin rwA-VBNIRSKWVJFC3cf8VA fw.vbo
+
+
+./zdm adm fota prepare wks-4py3re4pbd3h fw0.bin fw1.bin 3.1 rwA-VBNIRSKWVJFC3cf8VA
+
+./zdm adm fota schedule 3.1 dev-4py3x1xk2rkf
+
+
+
+5:35
+./ztc link --bc 0 --file fw0.bin nlFt9EcbTX6_mXPvw7o2rQ fw.c.vbo
+./ztc link --bc 1 --file fw1.bin nlFt9EcbTX6_mXPvw7o2rQ fw.c.vbo
+5:35
+./zdm adm fota prepare wks-4pnekzdmj66c fw0.bin fw1.bin 6.3 nlFt9EcbTX6_mXPvw7o2rQ
+5:35
+./zdm adm fota schedule 6.3 dev-4pnefulyx2bn
+
+
+"C:\Program Files\Zerynth\python\python.exe" C:\Users\Andrea\zerynth2\dist\r2.3.3\ztc\zdm.py adm fota all wks-4py3re4pbd3h
