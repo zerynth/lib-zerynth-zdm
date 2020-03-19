@@ -5,7 +5,7 @@ import vm
 
 import zlib_adm_fota as zfota
 
-ENDPOINT = "rmq.adm.zerinth.com"
+ENDPOINT = "rmq.zdm.stage.zerynth.com"
 PORT = 1883
 
 
@@ -16,8 +16,7 @@ class ZADMMQTTClient(mqtt.Client):
         self.ssl_ctx = ssl_ctx
 
     def connect(self, port=PORT, sock_keepalive=None, aconnect_cb=None, breconnect_cb=None):
-        mqtt.Client.connect(self, self.endpoint, 60, port=port, sock_keepalive=sock_keepalive, aconnect_cb=aconnect_cb,
-                            breconnect_cb=breconnect_cb)
+        mqtt.Client.connect(self, self.endpoint, 60, port=port, aconnect_cb=aconnect_cb)
 
     def publish(self, topic, payload):
         if type(payload) == PDICT:
@@ -34,7 +33,7 @@ def job_reset(obj, arg):
 
 
 class Thing:
-    def __init__(self, mqtt_id, clicert=None, pkey=None, cacert=None, jobs=None, fota_callback=None):
+    def __init__(self, mqtt_id, clicert=None, pkey=None, cacert=None, job_list=None, fota_callback=None):
         self.mqtt = ZADMMQTTClient(mqtt_id)
         self.mqtt_id = mqtt_id
 
@@ -51,9 +50,9 @@ class Thing:
             'reset': job_reset
         }
 
-        if type(jobs) == PDICT:
-            self.jobs.update(jobs)
-        elif jobs is not None:
+        if type(job_list) == PDICT:
+            self.jobs.update(job_list)
+        elif job_list is not None:
             print("zlib_adm.Thing.__init__ jobs argument invalid")
 
     def set_password(self, pw):
@@ -62,8 +61,9 @@ class Thing:
     def connect(self):
         for _ in range(5):
             try:
-                # print("zlib_adm.Thing.connect attempt")
+                print("zlib_adm.Thing.connect attempt")
                 self.mqtt.connect(sock_keepalive=[1, 10, 5], aconnect_cb=self.subscribe)
+                print("mqtt client connected succesfully")
                 self.mqtt.loop()
                 # print("zlib_adm.Thing.connect done")
                 break
@@ -107,6 +107,8 @@ class Thing:
                     self.handle_delta_request(payload['key'][1:], payload['value'])
                 else:
                     print("zlib_adm.Thing.handle_dn_msg received custom")
+                if payload['key'] == '@reset':
+                    mcu.reset()
             else:
                 print("received message with incorrect format")
                 pass
@@ -121,14 +123,10 @@ class Thing:
         elif job in self.jobs:
             try:
                 res = self.jobs[job](self, arg)
+                self.reply_job(job, res)
             except Exception as e:
                 print("zlib_adm.Thing.handle_job_request", e)
                 res = 'exception'
-
-            self.reply_job(job, res)
-
-            if job == 'reset':
-                mcu.reset()
 
         else:
             print("zlib_adm.Thing.handle_job_request invalid job request")
@@ -314,6 +312,7 @@ class Thing:
             'value': value
         }
         self.mqtt.publish(self.up_topic, msg)
+        print("Replied to job: ", key)
 
     def send_vm_info(self):
         vm_infos = vm.info()

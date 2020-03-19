@@ -9,17 +9,16 @@ from espressif.esp32net import esp32wifi as wifi_driver
 import streams
 import json
 import vm
-import random
 
 client = None
 
 streams.serial()
 
-# uncomment this line if you don't use a 4ZeroBox
-sfw.watchdog(0, 120000)
+# comment the following line if you don't use a 4ZeroBox
+# sfw.watchdog(0, 120000)
 
-mqtt_id = 'dev-4py3x1xk2rkf'
-pwd = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkZXYtNHB5M3gxeGsycmtmIiwidXNlciI6ImRldi00cHkzeDF4azJya2YiLCJrZXkiOjEsImV4cCI6MjUxNjIzOTAyMn0.a3H6XTmRRMAb0f1P6p4R9xyCZx4XiELbE18qJce07z0'
+mqtt_id = 'your device id'
+pwd = 'your device password'
 
 
 def custom_job_1(obj, arg):
@@ -55,10 +54,6 @@ def callback_accept_fota(fota_data):
     return True
 
 
-def clear_st(key):
-    client.clear_status_key(key)
-
-
 def pub_random():
     print("------ publish rnd ------")
     tags = [None, 'tag1', 'tag2', 'tag3']
@@ -87,21 +82,6 @@ def pub_ufficio():
     print(" ")
 
 
-def req_status():
-    print("------ req. status ------")
-    client.request_status()
-    print("done")
-    print(" ")
-
-
-def print_current():
-    print(client.current)
-
-
-def print_expected():
-    print(client.expected)
-
-
 tags = ["caffe", "cibo", "bevande", "armadi",
         "case", "tutto"]  # tags where to publish
 names = ["prova1", "prova2", "prova3", "prova4"]
@@ -111,19 +91,19 @@ try:
     for _ in range(5):
         try:
             print("connect wifi")
-            wifi.link("Zerynth", wifi.WIFI_WPA2, "zerynthwifi")
+            wifi.link("***Wifi-name***", wifi.WIFI_WPA2, "***Wifi-password***")
             print("connect wifi done")
             break
         except Exception as e:
             print("wifi connect err", e)
 
-    client = adm.Thing(mqtt_id, rpc=my_jobs)
+    client = adm.Thing(mqtt_id, job_list=my_jobs)
     client.set_password(pwd)
     client.connect()
     asd = vm.info()
 
     while True:
-        sleep(5000)
+        sleep(10000)
         pub_random()
         pub_ufficio()
 
