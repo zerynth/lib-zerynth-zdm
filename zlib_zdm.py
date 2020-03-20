@@ -3,13 +3,13 @@ import json
 import mcu
 import vm
 
-import zlib_adm_fota as zfota
+import zlib_zdm_fota as zfota
 
 ENDPOINT = "rmq.zdm.stage.zerynth.com"
 PORT = 1883
 
 
-class ZADMMQTTClient(mqtt.Client):
+class ZDMMQTTClient(mqtt.Client):
     def __init__(self, mqtt_id, endpoint=ENDPOINT, ssl_ctx=None, clean_session=True):
         mqtt.Client.__init__(self, mqtt_id, clean_session=clean_session)
         self.endpoint = endpoint
@@ -34,7 +34,7 @@ def job_reset(obj, arg):
 
 class Thing:
     def __init__(self, mqtt_id, clicert=None, pkey=None, cacert=None, job_list=None, fota_callback=None):
-        self.mqtt = ZADMMQTTClient(mqtt_id)
+        self.mqtt = ZDMMQTTClient(mqtt_id)
         self.mqtt_id = mqtt_id
 
         self.data_topic = '/'.join(['j', 'data', mqtt_id])
@@ -53,7 +53,7 @@ class Thing:
         if type(job_list) == PDICT:
             self.jobs.update(job_list)
         elif job_list is not None:
-            print("zlib_adm.Thing.__init__ jobs argument invalid")
+            print("zlib_zdm.Thing.__init__ jobs argument invalid")
 
     def set_password(self, pw):
         self.mqtt.set_username_pw(self.mqtt_id, pw)
@@ -61,14 +61,14 @@ class Thing:
     def connect(self):
         for _ in range(5):
             try:
-                print("zlib_adm.Thing.connect attempt")
+                print("zlib_zdm.Thing.connect attempt")
                 self.mqtt.connect(sock_keepalive=[1, 10, 5], aconnect_cb=self.subscribe)
                 print("mqtt client connected succesfully")
                 self.mqtt.loop()
-                # print("zlib_adm.Thing.connect done")
+                # print("zlib_zdm.Thing.connect done")
                 break
             except Exception as e:
-                print("zlib_adm.Thing.connect", e)
+                print("zlib_zdm.Thing.connect", e)
                 pass
         else:
             raise IOError
@@ -81,21 +81,21 @@ class Thing:
             self.request_status()
 
         except Exception as e:
-            print("zlib_adm.Thing._config", e)
+            print("zlib_zdm.Thing._config", e)
             raise IOError
 
     def subscribe(self):
         try:
-            print("zlib_adm.Thing.subscribe attempt")
+            print("zlib_zdm.Thing.subscribe attempt")
             self.mqtt.subscribe([[self.dn_topic, 1]])
-            print("zlib_adm.Thing.subscribe done")
+            print("zlib_zdm.Thing.subscribe done")
         except Exception as e:
-            print("zlib_adm.Thing.subscribe", e)
+            print("zlib_zdm.Thing.subscribe", e)
             raise IOError
 
     def handle_dn_msg(self, client, data):
         try:
-            print("zlib_adm.Thing.handle_dn_msg received message")
+            print("zlib_zdm.Thing.handle_dn_msg received message")
             msg = data['message']
             print("message: ", msg.payload)
             payload = json.loads(msg.payload)
@@ -106,7 +106,7 @@ class Thing:
                 elif payload['key'][0] == '#':
                     self.handle_delta_request(payload['key'][1:], payload['value'])
                 else:
-                    print("zlib_adm.Thing.handle_dn_msg received custom")
+                    print("zlib_zdm.Thing.handle_dn_msg received custom")
                 if payload['key'] == '@reset':
                     mcu.reset()
             else:
@@ -114,7 +114,7 @@ class Thing:
                 pass
 
         except Exception as e:
-            print("zlib_adm.Thing.handle_dn_msg", e)
+            print("zlib_zdm.Thing.handle_dn_msg", e)
 
     def handle_job_request(self, job, arg):
         if job == 'fota':
@@ -125,20 +125,20 @@ class Thing:
                 res = self.jobs[job](self, arg)
                 self.reply_job(job, res)
             except Exception as e:
-                print("zlib_adm.Thing.handle_job_request", e)
+                print("zlib_zdm.Thing.handle_job_request", e)
                 res = 'exception'
 
         else:
-            print("zlib_adm.Thing.handle_job_request invalid job request")
+            print("zlib_zdm.Thing.handle_job_request invalid job request")
             res = 'unsupported'
             self.reply_job(job, res)
             # TODO pass payload['key'], payload['value'] to user callback?
 
     def handle_fota_request(self, arg):
-        print("zlib_adm.Thing.handle_fota_request handling fota request")
+        print("zlib_zdm.Thing.handle_fota_request handling fota request")
 
         if not zfota.supported():
-            print("zlib_adm.Thing.handle_fota_request fota not supported")
+            print("zlib_zdm.Thing.handle_fota_request fota not supported")
             response = {
                 'fw_version': arg['fw_version'],
                 'result': 'fail',
@@ -148,7 +148,7 @@ class Thing:
             return
 
         if self._fota_callback and (not self._fota_callback(arg['fw_version'])):
-            print("zlib_adm.Thing.handle_fota_request fota aborted by callback")
+            print("zlib_zdm.Thing.handle_fota_request fota aborted by callback")
             response = {
                 "fw_version": arg['fw_version'],
                 "result": "fail",
@@ -172,7 +172,7 @@ class Thing:
         return
 
     def handle_delta_request(self, delta_key, arg):
-        # print("zlib_adm.Thing.handle_delta_request")
+        # print("zlib_zdm.Thing.handle_delta_request")
         if delta_key == 'status':
             self.handle_delta_status(arg)
 
@@ -180,11 +180,11 @@ class Thing:
             self.handle_delta_fota(arg)
 
         else:
-            print("zlib_adm.Thing.handle_delta_request received user-defined delta")
+            print("zlib_zdm.Thing.handle_delta_request received user-defined delta")
             # TODO pass custom delta_key and arg to user callback?
 
     def handle_delta_status(self, arg):
-        print("zlib_adm.Thing.handle_delta_status received status delta")
+        print("zlib_zdm.Thing.handle_delta_status received status delta")
 
         if ('expected' in arg) and (arg['expected'] is not None):
             if '@fota' in arg['expected']:
@@ -240,12 +240,12 @@ class Thing:
             self.send_vm_info()
 
     def handle_delta_fota(self, arg):
-        # print("zlib_adm.Thing.handle_delta_fota")
+        # print("zlib_zdm.Thing.handle_delta_fota")
 
         possible, msg = zfota.is_fota_possible(arg['fw_metadata'])
 
         if not possible:
-            print("zlib_adm.Thing.handle_delta_fota fota not possible:", msg)
+            print("zlib_zdm.Thing.handle_delta_fota fota not possible:", msg)
             self.clear_status_key("_fota_status")
 
             response = {
@@ -286,14 +286,14 @@ class Thing:
         self._send_up_msg('', 'event', value)
 
     def update_status_key(self, key, value):
-        # update key:value on adm and on self.current
+        # update key:value on zdm and on self.current
         self._send_up_msg('', key, value)
 
         if key[0] != '_':
             self.current[key] = value
 
     def clear_status_key(self, key):
-        # remove status key from adm and self.current
+        # remove status key from zdm and self.current
         self._send_up_msg('', key, None)
         self.current.pop(key, None)
 

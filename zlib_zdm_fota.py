@@ -21,7 +21,7 @@ def handle_fota(data):
         test()
         return True, "done, resetting"
     else:
-        print("zlib_adm_fota.handle_fota fw NOT written correctly")
+        print("zlib_zdm_fota.handle_fota fw NOT written correctly")
         return False, msg
 
 
@@ -39,26 +39,26 @@ def update(data):
 
     next_bcaddr = fota.find_bytecode_slot()
     bcsize = data["fw_info"][next_bc]["fw_size"]
-    # print("zlib_adm_fota.update erasing flash for bc, size:", bcsize)
+    # print("zlib_zdm_fota.update erasing flash for bc, size:", bcsize)
     fota.erase_slot(next_bcaddr, bcsize)
-    # print("zlib_adm_fota.update flash erased")
+    # print("zlib_zdm_fota.update flash erased")
 
     url = data['fw_url'] + str(next_bc)
-    # print("zlib_adm_fota.update getting fw from:", url)
+    # print("zlib_zdm_fota.update getting fw from:", url)
 
     # TODO add chunk size in data["metadata"]?
     chunk = 1024
-    # TODO add adm specific ssl context
+    # TODO add zdm specific ssl context
     ctx = ssl.create_ssl_context(options=ssl.CERT_NONE)
 
     try:
         rr = requests.get(url, ctx=ctx, stream_callback=_stream_cb, stream_chunk=chunk)
     except Exception as e:
-        print("zlib_adm_fota.update failed http get", e)
+        print("zlib_zdm_fota.update failed http get", e)
         return False
 
     if bcsize != wsize:
-        print("zlib_adm_fota.update failed bc size check")
+        print("zlib_zdm_fota.update failed bc size check")
         return False, "failed size check"
 
     chk = fota.checksum_slot(next_bcaddr, bcsize)
@@ -68,7 +68,7 @@ def update(data):
     for i, b in enumerate(chk):
         k = int(checksum[i * 2:i * 2 + 2], 16)
         if k != b:
-            print("zlib_adm_fota.update failed checksum")
+            print("zlib_zdm_fota.update failed checksum")
             return False, "failed checksum"
 
     return True, ''
@@ -77,7 +77,7 @@ def update(data):
 def is_fota_possible(metadata):
     # to be called before the fota attempt
     # compare current status with fota request. return (True, msg) if fota request is possible (vm_target version and feature are ok), (False, msg) otherwise
-    print("zlib_adm_fota.is_fota_possible")
+    print("zlib_zdm_fota.is_fota_possible")
     try:
         # TODO check fw_metadata 'vm_feature', 'vm_version', 'vm_target'
 
@@ -87,17 +87,17 @@ def is_fota_possible(metadata):
         vm_ver = vm_info[2]
 
         # if metadata['vm_target'] != vm_target:
-        # print("zlib_adm_fota.is_fota_possible fota not possible: wrong vm_target")
+        # print("zlib_zdm_fota.is_fota_possible fota not possible: wrong vm_target")
         # return False, 'invalid vm_target'
         if metadata['vm_version'] != vm_ver:
-            print("zlib_adm_fota.is_fota_possible fota not possible: wrong vm_version")
+            print("zlib_zdm_fota.is_fota_possible fota not possible: wrong vm_version")
             return False, 'invalid vm_version'
         # if metadata['vm_feature'] != vm_uid:
-        # print("zlib_adm_fota.is_fota_possible fota not possible: wrong vm_feature")
+        # print("zlib_zdm_fota.is_fota_possible fota not possible: wrong vm_feature")
         # return False, 'invalid vm_feature'
 
     except Exception as e:
-        print("zlib_adm_fota.is_fota_possible", e)
+        print("zlib_zdm_fota.is_fota_possible", e)
         return False, 'exception'
 
     return True, ""
@@ -116,7 +116,7 @@ def is_fota_valid():
             # and that it is coming from previous slot
             return True, ""
     except Exception as e:
-        print("zlib_adm_fota.is_fota_valid", e)
+        print("zlib_zdm_fota.is_fota_valid", e)
         return False, "exception"
 
     return False, "fota failed"

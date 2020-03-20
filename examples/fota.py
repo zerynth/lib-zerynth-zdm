@@ -1,4 +1,4 @@
-import zlib_adm as adm
+import zlib_zdm as zdm
 from wireless import wifi
 from espressif.esp32net import esp32wifi as wifi_driver
 import streams
@@ -21,7 +21,7 @@ try:
         except Exception as e:
             print("wifi connect err", e)
 
-    client = adm.Thing(mqtt_id)
+    client = zdm.Thing(mqtt_id)
     client.set_password(pwd)
     client.connect()
 
