@@ -54,7 +54,7 @@ try:
     while True:
         sleep(5000)
         pub_random()
-        pub_ufficio()
+        pub_temp_pressure()
 
 except Exception as e:
     print("main", e)
