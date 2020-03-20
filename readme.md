@@ -17,9 +17,11 @@ Fota.py enables your device only to receive fota commands after you have uploade
 
 To see how to use these files with more details, see the How To Use guide.
 
-#Download
-'''bash
+## Download
+```bash
 git clone https://github.com/zerynth/lib-zerynth-zdm
+```
 
-#Usage
+
+## Usage
 Copy the lib files into your project, uplink one of the example firmwares on your device
